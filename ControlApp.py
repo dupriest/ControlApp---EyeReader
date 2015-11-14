@@ -44,11 +44,11 @@ while choice != 'Exit':
 				final_call = easygui.ynbox('Are you sure that you want to reinstall/update ' + user1 + '?')
 			if user1 != 'Return':
 				shutil.rmtree(os.getcwd() + "\\" + user1 + "\\Minimal EyeReader\\program files")
-				shutil.copytree(os.getcwd() + "\\" + "EyeReader v1.5 Cross-Browser\\Minimal EyeReader\\program files", os.getcwd() + "\\" + user1 + "\\Minimal EyeReader\\program files")
+				shutil.copytree(os.getcwd() + "\\ControlApp\\" + "EyeReader v1.5 Cross-Browser\\Minimal EyeReader\\program files", os.getcwd() + "\\" + user1 + "\\Minimal EyeReader\\program files")
 				f = open(bookshelves[user1][0], 'w')
 				f.write(bookshelves[user1][2])
 				f.close()
-				bookshelves[user1][1] = bookshelves['EyeReader v1.5 Cross-Browser'][1]
+				bookshelves[user1][1] = master_copy[1]
 				#bookshelves[user1][2] = bookshelves['EyeReader v1.5 Cross-Browser'][2]
 				easygui.msgbox('Reinstall/Update Complete!')
 	elif choice == 'User-Bookshelf List':
@@ -108,11 +108,11 @@ while choice != 'Exit':
 					new_user = easygui.multenterbox('Please enter value for both fields', title, fieldNames, [new_user[0]])
 				else:
 					new_user = easygui.multenterbox('Please enter value for both fields', title, fieldNames)
-			loc = os.getcwd() + "\\" + "EyeReader v1.5 Cross-Browser" + "\\Minimal EyeReader\\program files\\Bookshelf.txt"
+			loc = os.getcwd() + "\\ControlApp\\" + "EyeReader v1.5 Cross-Browser" + "\\Minimal EyeReader\\program files\\Bookshelf.txt"
 			f = open(loc, 'w')
 			f.write(new_user[1])
 			f.close()
-			loc = os.getcwd() + "\\" + "EyeReader v1.5 Cross-Browser" + "\\Minimal EyeReader\\program files\\Bookshelf_Date.txt"
+			loc = os.getcwd() + "\\ControlApp\\" + "EyeReader v1.5 Cross-Browser" + "\\Minimal EyeReader\\program files\\Bookshelf_Date.txt"
 			f = open(loc, 'w')
 			current_date = str(datetime.datetime.now())
 			for i in range(0, len(current_date)):
@@ -121,7 +121,7 @@ while choice != 'Exit':
 						break
 			f.write(current_date)
 			f.close()
-			shutil.copytree(os.getcwd() + "\\" + "EyeReader v1.5 Cross-Browser", os.getcwd() + "\\" + new_user[0])
+			shutil.copytree(os.getcwd() + "\\ControlApp\\" + "EyeReader v1.5 Cross-Browser", os.getcwd() + "\\" + new_user[0])
 			bookshelves[new_user[0]] = [os.getcwd() + "\\" + new_user[0] + "\\Minimal EyeReader\\program files\\Bookshelf.txt", new_user[1], current_date]
 			users.append(new_user[0])
 			user_options.remove('Return')
