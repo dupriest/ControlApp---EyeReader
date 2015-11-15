@@ -2,7 +2,11 @@ import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.transforms import Bbox
 from matplotlib.path import Path
+import pandas as pd
+from pandas import DataFrame
+from pandas import Series
 import json
+import os
 
 def cPictureGraph(j_file):
     data = []
@@ -23,13 +27,9 @@ def cPictureGraph(j_file):
         y_coords = []
         x_fix = []
         y_fix = []
-        #print(page, start, len(data)-1)
         for i in range(start,len(data)):
             if t == page and data[i].get('type') == 'PageTurn':
-                #print(page)
-                #print(data[i].get('page'))
                 start = i
-                #print(start)
                 break
             if (data[i].get('type') == 'SampleGaze' or data[i].get('type') == 'SampleFixation') and t > page-1:
                 x_coords.append(data[i].get('x'))
@@ -45,23 +45,27 @@ def cPictureGraph(j_file):
                 text = data[i]
             if i == len(data)-1:
                 start = i
-
+        
         pict = plt.Rectangle((pic.get('pl'), pic.get('pt')), (pic.get('pr') - pic.get('pl')),(pic.get('pb') - pic.get('pt')), 
-                             facecolor="#3e1eff") # Makes a visible box
+                             facecolor="#097BCD", edgecolor="none", linewidth=3) # Makes a visible box
         plt.gca().add_patch(pict)
         textb = plt.Rectangle((text.get('tl'), text.get('tt')), text.get('tr') - text.get('tl'),text.get('tb') - text.get('tt'),
-                              facecolor="#008f25")
+                              facecolor="#090D9F", edgecolor="none", linewidth=3)
         plt.gca().add_patch(textb)
-        plt.plot(x_coords, y_coords, 'o', color='#f6ff71', markeredgewidth=0.0)
-        plt.plot(x_fix, y_fix, 'yo', markeredgewidth=0.0) 
-        plt.plot(x_fix, y_fix, 'y')
+        plt.plot(x_coords, y_coords, 'o', color='#FF6600', markeredgewidth=0.0, alpha=0.6, markersize=10)
+        plt.plot(x_fix, y_fix, color='#FF3300')
         plt.axis([0, 1920, 0, 1080])
         plt.gca().invert_yaxis()
         for i in range(0, len(x_fix)):
-            plt.annotate('%s' %(i+1), xy=(x_fix[i], y_fix[i]), xytext=(x_fix[i]+1, y_fix[i]+1))
-        plt.savefig(j_file[0:-5] + '_' + str(page) + '.png')
+            plt.plot(x_fix[i], y_fix[i], 'o', color='#FF3300', markersize=20, markeredgecolor='#FFFFFF') 
+            plt.annotate('%s' %(i+1), xy=(x_fix[i], y_fix[i]), xytext=(x_fix[i]-25, y_fix[i]+10), color='#ffffff')
+        plt.suptitle('Page ' + str(page), fontsize=20)
+        plt.xlabel('Width(pixels)', fontsize=15)
+        plt.ylabel('Height(pixels)', fontsize=15)
+        plt.savefig(j_file[0:-48] + "Picture Graphs/" + j_file[-36:-5] + '_' + str(page) + '.png')
         plt.clf()
         page = page + 1
+    print('Picture graph for ' + j_file + ' complete!')
 
 def cLineGraph(j_file):
     data = []
@@ -145,14 +149,51 @@ def cLineGraph(j_file):
             plt.plot(plot[0], plot[1], 'b', linewidth=10)
         elif plot[1][0] == 2:
             plt.plot(plot[0], plot[1], 'g', linewidth=10)
-     
-    # THESE TWO LINES IMPLEMENT THE READING POINT PLOT FUNCTIONALITY        
-    #plt.plot(x_times, x_coords, 'go')
-    #plt.plot(x_times, x_coords, 'g')
-
     plt.axis([0, time[-1], -0.5, 2.5])
     plt.yticks([0, 1, 2], ['Other', 'Picture', 'Text'], size='small')
     plt.xticks(page_turns, pages, size='small')
     plt.xlabel('Page')
     plt.ylabel('Eye Location on Page')
-    plt.savefig('linegraph' + j_file[11:-5] + '.png')
+    plt.savefig(j_file[0:-48] + "Line Graphs\\" + j_file[-36:-5] + '_linegraph.png')
+    print('Line graph for ' + j_file + ' complete!')
+
+def cCSV(json_file):
+    def json_to_df(json_file):
+        page = ''
+        pic = ''
+        text = ''
+        point = ''
+        point_list = []
+        with open(json_file) as data_file:    
+            data = json.load(data_file)
+            for i in range(0, len(data)):
+                if data[i]['type'] == 'PageTurn':
+                    page = data[i]
+                elif data[i]['type'] == 'Picture':
+                    pic = data[i]
+                elif data[i]['type'] == 'Text':
+                    text = data[i]
+                elif data[i]['type'] == 'SampleGaze':
+                    point = data[i]
+                    point.update(page)
+                    point.update(pic)
+                    point.update(text)
+                    point['type'] = u'SampleGaze'
+                    point_list.append(point)
+                elif data[i]['type'] == 'SampleFixation':
+                    point = data[i]
+                    point.update(page)
+                    point.update(pic)
+                    point.update(text)
+                    point['type'] = u'SampleFixation'
+                    point_list.append(point)
+            df = DataFrame(point_list)
+            start_time = df['timestamp'].min()
+            df['timestamp'] = df['timestamp'] - start_time
+            df = df.sort('timestamp')
+            return df
+
+    df = json_to_df(json_file)
+    loc = json_file[0:-48] + "CSVs\\" + json_file[-36:-5] + '.csv'
+    df.to_csv(loc)
+    print('CSV for ' + j_file + ' complete!')

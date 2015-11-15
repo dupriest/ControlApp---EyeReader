@@ -3,11 +3,13 @@ import os
 import sys
 import datetime
 import shutil
+import Tkinter,tkFileDialog
+import EyeReaderGraphs
 
 files = os.listdir(os.getcwd())
 users = []
 bookshelves = {}
-master_loc = os.getcwd() + "\\ControlApp\\EyeReader v1.5 Cross-Browser\\Minimal EyeReader\\program files\\"
+master_loc = os.getcwd() + "\\ControlApp - EyeReader\\EyeReader v1.5 Cross-Browser\\Minimal EyeReader\\program files\\"
 master_copy = [master_loc + "Bookshelf.txt", open(master_loc + "Bookshelf.txt", 'r').read(), open(master_loc + "Bookshelf_Date.txt", "r").read()]
 options = []
 user_options = []
@@ -28,11 +30,41 @@ for u in users:
 	bookshelves[u] = b
 options.append('Manage Users')
 options.append('Reinstall or Update User')
+options.append('Create CSVs or Graphs')
 options.append('Exit')
 user_options.append('Return')
 
 choice = easygui.buttonbox('What would you like to do?', 'ControlApp', options)
 while choice != 'Exit':
+	if choice == 'Create CSVs or Graphs':
+		select = easygui.buttonbox('What kind of graph would you like to make?', 'ControlApp', ['CSV File', 'Line Graph', 'Picture Graph', 'Return'])
+		if select != 'Return':
+			root = Tkinter.Tk()
+			root.withdraw()
+			test = 0
+			first = 0
+			while test == 0:
+				if first == 0:
+					files = tkFileDialog.askopenfilenames(parent=root, title="Select json files from a user's data folder")
+					first = 1
+				else:
+					files = tkFileDialog.askopenfilenames(parent=root, title="A file you selected was not a json file. Please select again.")
+				test = 1
+				for f in files:
+					if f[-4::] != 'json':
+						test = 0
+						break;
+			if type(files) == tuple:
+				if select == 'CSV File':
+					for f in files:
+						EyeReaderGraphs.cCSV(f)
+				if select == 'Line Graph':
+					for f in files:
+						EyeReaderGraphs.cLineGraph(f)
+				if select == 'Picture Graph':
+					for f in files:
+						EyeReaderGraphs.cPictureGraph(f)
+				easygui.msgbox('Files created!')
 	if choice == 'Reinstall or Update User':
 		user1 = easygui.buttonbox('Select a user to reinstall or update to the most recent version', 'ControlApp', user_options)
 		if user1 != 'Return':
@@ -44,7 +76,7 @@ while choice != 'Exit':
 				final_call = easygui.ynbox('Are you sure that you want to reinstall/update ' + user1 + '?')
 			if user1 != 'Return':
 				shutil.rmtree(os.getcwd() + "\\" + user1 + "\\Minimal EyeReader\\program files")
-				shutil.copytree(os.getcwd() + "\\ControlApp\\" + "EyeReader v1.5 Cross-Browser\\Minimal EyeReader\\program files", os.getcwd() + "\\" + user1 + "\\Minimal EyeReader\\program files")
+				shutil.copytree(os.getcwd() + "\\ControlApp - EyeReader\\" + "EyeReader v1.5 Cross-Browser\\Minimal EyeReader\\program files", os.getcwd() + "\\" + user1 + "\\Minimal EyeReader\\program files")
 				f = open(bookshelves[user1][0], 'w')
 				f.write(bookshelves[user1][2])
 				f.close()
@@ -108,11 +140,11 @@ while choice != 'Exit':
 					new_user = easygui.multenterbox('Please enter value for both fields', title, fieldNames, [new_user[0]])
 				else:
 					new_user = easygui.multenterbox('Please enter value for both fields', title, fieldNames)
-			loc = os.getcwd() + "\\ControlApp\\" + "EyeReader v1.5 Cross-Browser" + "\\Minimal EyeReader\\program files\\Bookshelf.txt"
+			loc = os.getcwd() + "\\ControlApp - EyeReader\\" + "EyeReader v1.5 Cross-Browser" + "\\Minimal EyeReader\\program files\\Bookshelf.txt"
 			f = open(loc, 'w')
 			f.write(new_user[1])
 			f.close()
-			loc = os.getcwd() + "\\ControlApp\\" + "EyeReader v1.5 Cross-Browser" + "\\Minimal EyeReader\\program files\\Bookshelf_Date.txt"
+			loc = os.getcwd() + "\\ControlApp - EyeReader\\" + "EyeReader v1.5 Cross-Browser" + "\\Minimal EyeReader\\program files\\Bookshelf_Date.txt"
 			f = open(loc, 'w')
 			current_date = str(datetime.datetime.now())
 			for i in range(0, len(current_date)):
@@ -121,7 +153,7 @@ while choice != 'Exit':
 						break
 			f.write(current_date)
 			f.close()
-			shutil.copytree(os.getcwd() + "\\ControlApp\\" + "EyeReader v1.5 Cross-Browser", os.getcwd() + "\\" + new_user[0])
+			shutil.copytree(os.getcwd() + "\\ControlApp - EyeReader\\" + "EyeReader v1.5 Cross-Browser", os.getcwd() + "\\" + new_user[0])
 			bookshelves[new_user[0]] = [os.getcwd() + "\\" + new_user[0] + "\\Minimal EyeReader\\program files\\Bookshelf.txt", new_user[1], current_date]
 			users.append(new_user[0])
 			user_options.remove('Return')
