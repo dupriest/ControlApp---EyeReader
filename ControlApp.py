@@ -8,11 +8,10 @@ import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.transforms import Bbox
 from matplotlib.path import Path
-import pandas as pd
 from pandas import DataFrame
 from pandas import Series
 import json
-#import EyeReaderGraphs
+
 
 class EyeReaderGraphs:
 	def cPictureGraph(self, j_file):
